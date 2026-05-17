@@ -40,7 +40,7 @@ class VideoProcessor(VideoProcessorBase):
 
         self._detectors = {
             "Squats" : SquatDetector(),
-            "Bicep Curls(Dumbbell)" : BicepsCurlDetector(),
+            "Biceps Curls(Dumbbell)" : BicepsCurlDetector(),
             "Lunges" : LungesDetector(),
             "Push-ups" : PushUpDetector(),
             "Shoulder Press" : ShoulderPressDetector()

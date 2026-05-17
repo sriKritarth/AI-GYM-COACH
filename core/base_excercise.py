@@ -16,7 +16,7 @@ class BaseExercise(ABC):
         ax , ay = a[0] - b[0] , a[1] - b[1]
         cx , cy = c[0] - b[0] , c[1] - b[1]
 
-        dot = (ax + cx) * (ay * cy)
+        dot = (ax * cx) + (ay * cy)
 
         mag_a =  math.sqrt(ax ** 2 + ay ** 2)
         mag_c = math.sqrt(cx ** 2 + cy ** 2)

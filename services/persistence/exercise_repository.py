@@ -87,7 +87,7 @@ def add_exercise(user_id , exercise_name , reps , sets , time):
 
         else :
             conn.execute("""
-                INSERT INTO (user_id , exercise_name , reps , sets , time) 
+                INSERT INTO exercises(user_id , exercise_name , reps , sets , time) 
                 VALUES(? , ? , ? , ? , ? )
             """ , (user_id ,exercise_name ,reps , sets ,time))
 
@@ -96,5 +96,5 @@ def get_user_exercise(user_id):
     conn = _get_connection()
 
     return conn.execute("""
-        SELECT * FROM WHERE user_id = ?
+        SELECT * FROM exercises WHERE user_id = ?
     """ , (user_id,)).fetchall()
