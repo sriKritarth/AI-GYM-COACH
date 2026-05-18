@@ -226,12 +226,20 @@ class VideoProcessor(VideoProcessorBase):
             if detectors:
                 metrics = detectors.process(landmarks)
 
+                metrics["pose_detected"] = True
+
                 self._draw_overlays(img , metrics , ex_type)
                 self.set_latest_metrics(metrics)
 
 
         else:
             self._draw_no_pose_warnings(img)
+
+            with self._lock:
+                if self._latest_metrics is not None:
+                    self._latest_metrics["pose_detected"] = False
+                else:
+                    self._latest_metrics = {"pose_detected": False}
 
         return av.VideoFrame.from_ndarray(img , format="bgr24")
     
