@@ -11,8 +11,8 @@ class VoicePipeline:
         self.last_spoken_at = 0
 
     def _find_form_issue(self ,exercise , metrics):
-        if "issues" in metrics:
-            return metrics["issues"]
+        if "issue" in metrics:
+            return metrics["issue"]
 
         if exercise == "Squats":
             depth = metrics.get("depth_status", "")
@@ -67,9 +67,10 @@ class VoicePipeline:
 
     
     def process_event(self,  event , exercise , metrics):
+
         issues = self._find_form_issue(exercise , metrics)
 
-        now =time.time()
+        now = time.time()
 
         is_major_issue = event in ["workout_started" ,  "set_completed" , "workout_completed"]
 

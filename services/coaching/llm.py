@@ -3,7 +3,7 @@ from services.config.workout_config import PROMPT
 
 class LLMCoach:
     def __init__(self , groq_client):
-        self.client = groq_client,
+        self.client = groq_client
         self.history=  []
         self.system_prompt = PROMPT
 
@@ -14,7 +14,7 @@ class LLMCoach:
             prompt += f"Form issue {issues}"
 
 
-        message = [
+        messages = [
             {"role" : "system" , "content" : self.system_prompt},
             *self.history[-10:],
             {"role" : "user" , "content" : prompt}
@@ -22,7 +22,7 @@ class LLMCoach:
 
         response = self.client.chat.completions.create(
             model = "llama-3.3-70b-versatile",
-            messages = message,
+            messages = messages,
             temperature = 0.4
         )
 

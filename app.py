@@ -3,6 +3,7 @@ import os
 import time
 import pandas as pd
 from groq import Groq
+from dotenv import load_dotenv
 from services.auth.login_wall import render_login_wall
 from services.state.session_defaults import initial_session_defaults
 from services.config.workout_config import EXCERCISE_OPTIONS
@@ -15,6 +16,10 @@ from services.coaching.llm import LLMCoach
 from services.coaching.tts import TextToSpeech
 from services.coaching.voice_pipeline import VoicePipeline , autoplay_audio
 from services.persistence.exercise_repository import get_user_exercise
+
+
+
+
 
 
 def main():
@@ -38,27 +43,25 @@ def main():
 
     if "voice_pipeline" not in st.session_state:
         try:
-            api_key = os.environ.get("GROQ_API_KEY" , "")
+            load_dotenv()
+            api_key = os.environ.get("GROQ_API_KEY", "")
 
-            if not api_key and hasattr(st , "secrets") and "GROQ_API_KEY" in st.secrets:
-                api_key = st.secrets['GROQ_API_KEY']
-
+            if not api_key and hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+                api_key = st.secrets["GROQ_API_KEY"]
+            
             groq_client = Groq(api_key=api_key)
-
-            llm_coach = LLMCoach(groq_client=groq_client)
+            llm_coach = LLMCoach(groq_client)
             tts = TextToSpeech()
-
-            st.session_state.voice_pipeline = VoicePipeline(llm_coach , tts)
+            st.session_state.voice_pipeline = VoicePipeline(llm_coach, tts)
 
         except Exception as e:
             st.session_state.voice_pipeline = None
 
 
-
             
     
     ##sidebar ui
-    workout_started = st.session_state.get("workout_started")
+    workout_started = st.session_state.get("workout_started" , False)
     with st.sidebar:
         st.title("🏋️‍♀️ Apna AI Coach")
         
@@ -72,8 +75,6 @@ def main():
 
         if not workout_started:
 
-
-
             plan_exercise = st.selectbox("Excercise" , options=EXCERCISE_OPTIONS ,key="plan_exercise")
 
             plan_sets = st.number_input("Sets" , min_value=0 , max_value=50 ,step=1 , key="plan_sets")
@@ -82,7 +83,7 @@ def main():
 
             st.markdown("")
 
-            start_session_button = st.button("Start Session" , key = "start_session"  , width="stretch")
+            start_session_button = st.button("Start Session" , key = "start_session_button"  , width="stretch")
 
             if start_session_button:
                 st.session_state.exercise_type = plan_exercise
@@ -92,6 +93,7 @@ def main():
                 st.session_state.workout_started = True
                 st.session_state.set_cycle_started_at = time.time()
                 st.session_state.last_saved_sets_completed = 0
+                
                 
                 if st.session_state.voice_pipeline:
                     result = st.session_state.voice_pipeline.process_event(
@@ -103,25 +105,26 @@ def main():
                     if result:
                         st.session_state.audio_to_play, st.session_state.coach_feedback = result
 
-                st.session_state.last_notified_sets_coompletes = 0
+                st.session_state.last_notified_sets_completed = 0
                 st.session_state.last_notified_workout_completed = False
                 st.rerun()
         
         else:
-            st.write("Workout Started")
+        
 
-            exercise = st.session_state.get("plan_exercise")
+            exercise = st.session_state.get("exercise_type")
 
-            sets = st.session_state.get("plan_sets")
+            sets = st.session_state.get("target_sets")
 
-            reps = st.session_state.get("plan_reps")
+            reps = st.session_state.get("reps_per_set")
+
 
             st.info(f"**{exercise}** -- {sets} Sets / {reps} Reps")
 
             end_session_button = st.button("End Workout" , key="end_session_button" , width="stretch")
 
             if end_session_button:
-                st.session_state["workout_started"] = False
+                st.session_state.workout_started = False
 
                 if st.session_state.voice_pipeline:
                     result = st.session_state.voice_pipeline.process_event(
