@@ -1,3 +1,22 @@
+#Solving stun to turn issue
+# ── Patch aioice to handle closed-transport teardown gracefully ──
+from aioice import ice as _aioice_ice
+
+_original_send_stun = _aioice_ice.StunProtocol.send_stun
+
+def _safe_send_stun(self, message, addr):
+    try:
+        if self.transport is not None:
+            _original_send_stun(self, message, addr)
+    except Exception:
+        pass
+
+_aioice_ice.StunProtocol.send_stun = _safe_send_stun
+# ── End patch ──
+
+
+
+
 import streamlit as st
 import os
 import time
@@ -219,14 +238,34 @@ def main():
         )
 
     else:
+
+        rtc_configuration = {
+            "iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302"]},
+                {"urls": ["stun:stun1.l.google.com:19302"]},
+                {
+                    "urls": ["turn:openrelay.metered.ca:80"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+                {
+                    "urls": ["turn:openrelay.metered.ca:443"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+                {
+                    "urls": ["turn:openrelay.metered.ca:443?transport=tcp"],
+                    "username": "openrelayproject",
+                    "credential": "openrelayproject",
+                },
+            ]
+        }
         
         context = webrtc_streamer(
             key = "exercise-analysis",
             mode=WebRtcMode.SENDRECV,
             video_processor_factory= VideoProcessor,
-            rtc_configuration={
-                "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-            },
+            rtc_configuration=rtc_configuration
             media_stream_constraints={
                 "video" : True,
                 "audio" : False
