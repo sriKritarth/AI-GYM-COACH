@@ -265,7 +265,7 @@ def main():
             key = "exercise-analysis",
             mode=WebRtcMode.SENDRECV,
             video_processor_factory= VideoProcessor,
-            rtc_configuration=rtc_configuration
+            rtc_configuration=rtc_configuration,
             media_stream_constraints={
                 "video" : True,
                 "audio" : False
