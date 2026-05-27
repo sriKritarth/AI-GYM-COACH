@@ -151,6 +151,3 @@ Pull requests are welcome! If you want to add TURN server support to fix the Wi-
 
 ---
 
-## 📄 License
-
-This project is open source. See [LICENSE](LICENSE) for details.
